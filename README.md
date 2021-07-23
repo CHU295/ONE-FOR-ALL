@@ -1,70 +1,93 @@
-# Getting Started with Create React App
+# 一种新的前端架构思维方式
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## 前言
 
-## Available Scripts
+刚来这家公司时，因为业务场景的需求，让做一个新前端项目，可以快速部署业务项目，尽可能简单快速的完成，于是就有了这个项目；
 
-In the project directory, you can run:
+## 项目规划
 
-### `yarn start`
+为了尽可能的**人尽其才,物尽其用**,把工作分成了下面几块
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### 业务侧配置
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+这块基本由前后端辅助产品完成，通过 excel 配表+python 导表工具=json 文件的方式实现。
 
-### `yarn test`
+这块的主要功能是生成项目配置，包括前端页面的信息表，后端数据库的键值，常量表，公共表等等；
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+展开为
 
-### `yarn build`
+- 前端页面的所有内容都是通过读取信息表生成
+- 后端的数据库键值结构通过读取数据表生成
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+其中前端是根据不同的前端模板(后面具体讲)加载不同的 json，然后生成不同标签节点。
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+举个例子，前端 page 模板 LIST 其中的table，表头直接读取json生成，前端写页面的时候不需要配置了，直接用产品配置的生成，后续产品想要修改页面的文字自行修改即可
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+这里整个过程都由py脚本实现，通过全自动的Jenkins执行，一键实现excel到json的转换，文件的copy移动替换。
 
-### `yarn eject`
+体现在日常就是，产品改表，运行导表脚本，拉取分支代码，就可以获得新的json，全程无感
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+### 前端配置
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+首先看一下前端项目结构
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+#### 目录结构
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+```
+│ index.js              入口文件
+├─assets                资源文件
+│  ├─css 样式文件
+│  │      index.less    样式主入口
+│  │      reset.less    重置样式，例如覆盖默认html样式
+│  │      tool.less     工具样式，例如marginTop-10 
+│  ├─img
+│  └─js 
+│          axios.js     axios配置项
+│          common.js    通用js，常为模块组件直接复用的逻辑
+│          utils.js     工具js，独立于项目之外的逻辑，例如日期转换
+├─project               项目
+│  │  index.js          项目主入口js，根据node参数调用不同目录的文件
+│  ├─default            项目default
+│  │  │  index.js       项目配置
+│  │  │  router.js      项目自带路由
+│  │  └─data            存放excel转换的json
+│  └─test               项目test
+│      │  index.js
+│      │  router.js
+│      └─data
+└─source                代码资源
+    ├─api               接口类
+    │      auth.js      
+    │      Interface.js 
+    ├─component         组件目录
+    │  ├─select
+    │  └─table
+    ├─layout            网页布局
+    │  ├─Front
+    │  │      index.js
+    │  └─H5
+    ├─module            模块
+    │  ├─createRoute
+    │  │      index.js
+    │  └─mainInfo
+    └─page              页面
+        ├─A
+        │      index.js
+        └─B
+                index.js
+```
+与普通相关差异不大，主要是多了一个project目录，也就是项目配置目录，在使用的时候根据node参数加载不同的子目录，以获得不同的配置项，生成不同的项目。
 
-## Learn More
+为了保证打包体积，这里把路由拆分成项目独有
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## 后序
+其实这个实现方式只是个折中方案，我们真正想做的是网页编辑器，在网页端直接修改，然后存储到数据库，替代excel这一步，但是由于时间精力人力等各方面的限制，新的方案推进一直比较缓慢。
 
-### Code Splitting
+## 可能存在的问题
+耦合性太强，同一个组件十几个项目使用，单元测试工作量巨大
+后期技术栈破坏性升级维护成本太大
+````
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `yarn build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+# 学习中，后续再更新
+原实际项目已经运行了两年，并且部署到各大医院完美运行，其中包括内网环境等等，经受的主各种考验
