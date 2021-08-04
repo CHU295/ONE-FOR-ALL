@@ -94,7 +94,7 @@
 
 ## 扩展
 ### antd集成及动态主题
-demo地址
+demo地址 https://juejin.cn/post/6971229787071348767?from=right_recommend
 
 最近一直忙上面那个无限递归的组件，扩展了很多东西进去，没来得及整理日常:smile:
 
